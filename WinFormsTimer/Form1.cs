@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
+using System.Management;
 
 namespace WinFormsTimer
 {
@@ -28,7 +29,7 @@ namespace WinFormsTimer
         Stopwatch stopwatchWinFormsTimer = new Stopwatch();  // Запускаем внутренний таймер объекта Stopwatch
         //static string fileName = "/home/vladdden/RiderProjects/ConsoleApp1/ConsoleApp1/log.txt";
         public static string fileName = @"C:\Users\Владислав\Desktop\log\log.txt";
-
+        private static string RuntimeVersion;
 
         public Form1()
         {
@@ -49,6 +50,10 @@ namespace WinFormsTimer
             timeInSec = Convert.ToInt32(timeTextBox.Text);
             fileName = logTextBox.Text;
             button.Enabled = false;
+
+            GetOs();
+            PrintRuntime();
+            PrintProcessorStat();
 
             Thread t1 = new Thread(System_Timers_Timer);
             t1.Name = "System_Timers_Timer";
@@ -318,8 +323,8 @@ namespace WinFormsTimer
 
         private static void PrintProcessorStat()
         {
-            File.AppendAllText(fileName, "---------CPU%--------\n");
-            File.AppendAllText(fileName, "Count: " + Environment.ProcessorCount + " -\n");
+            File.AppendAllText(fileName, Environment.NewLine + "---------CPU%--------\n");
+            File.AppendAllText(fileName, Environment.NewLine + "Count: " + Environment.ProcessorCount + " -\n" + Environment.NewLine);
 
             if (IsLinux())
             {
@@ -351,6 +356,17 @@ namespace WinFormsTimer
                 }
             }
 
+        }
+
+        public static bool IsLinux()
+        {
+            int p = (int)Environment.OSVersion.Platform;
+            if ((p == 4) || (p == 6) || (p == 128))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 
