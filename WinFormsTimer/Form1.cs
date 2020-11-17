@@ -16,7 +16,7 @@ namespace WinFormsTimer
 {
     public partial class Form1 : Form
     {
-
+        bool f1 = false, f2 = false, f3 = false;
         public int timeInSec = 0;
         private System.Timers.Timer T1;
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
@@ -159,6 +159,7 @@ namespace WinFormsTimer
                 Console.WriteLine("Первый таймер завершился.");
                 TimerInfo timer = new TimerInfo(Thread.CurrentThread.Name, start, startTicks, stop, stopTicks, difference, timerException);
                 Logging(timer);
+                f1 = true;
             }
         }
 
@@ -201,6 +202,7 @@ namespace WinFormsTimer
                 Console.WriteLine("Второй таймер завершился.");
                 TimerInfo timer = new TimerInfo(Thread.CurrentThread.Name, start, startTicks, stop, stopTicks, difference, timerException);
                 Logging(timer);
+                f2 = true;
             }
         }
         
@@ -249,7 +251,7 @@ namespace WinFormsTimer
             WinFormsTimerInfo.stopTicks = DateTime.Now.Ticks;
             WinFormsTimerInfo.difference = stopwatchWinFormsTimer.ElapsedTicks;
             Logging(WinFormsTimerInfo);
-            //resetEvent3.Set();
+            f3 = true;
         }
     }
 
