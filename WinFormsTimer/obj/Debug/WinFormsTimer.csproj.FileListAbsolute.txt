@@ -1,0 +1,10 @@
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\bin\Debug\WinFormsTimer.exe.config
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\bin\Debug\WinFormsTimer.exe
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\bin\Debug\WinFormsTimer.pdb
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\obj\Debug\WinFormsTimer.csprojAssemblyReference.cache
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\obj\Debug\WinFormsTimer.Form1.resources
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\obj\Debug\WinFormsTimer.Properties.Resources.resources
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\obj\Debug\WinFormsTimer.csproj.GenerateResource.cache
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\obj\Debug\WinFormsTimer.csproj.CoreCompileInputs.cache
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\obj\Debug\WinFormsTimer.exe
+C:\Users\Владислав\Source\Repos\WinFormsTimer\WinFormsTimer\obj\Debug\WinFormsTimer.pdb

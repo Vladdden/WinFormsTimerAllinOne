@@ -16,7 +16,7 @@ namespace WinFormsTimer
 {
     public partial class Form1 : Form
     {
-        bool f1 = false, f2 = false, f3 = false;
+        bool f1 = false, f2 = false, f3 = true;
         public int timeInSec = 0;
         private System.Timers.Timer T1;
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
@@ -51,7 +51,7 @@ namespace WinFormsTimer
             t2.Name = "System_Threading_Timer";
             t2.Start(timeInSec * 1000);
 
-            
+
             System_Windows_Forms_Timer(timeInSec * 1000);
             /*
             TimerWF.Interval = timeInSec*1000;
@@ -62,12 +62,15 @@ namespace WinFormsTimer
             t3.Name = "System_Windows_Forms_Timer";
             t3.Start(timeInSec * 1000);
             */
+            while (!(f1 && f2 && f3)) ;
+            
             MessageBox.Show("Таймеры закончили свою работу, нажмите Enter.");
             Console.Read();
             using (StreamWriter endString = new StreamWriter(writePath, true, System.Text.Encoding.Default))
             {
                 endString.WriteLineAsync("--------------------------------------------------------------------------------------------");
             }
+            Application.Exit();
         }
 
         public async void Logging(TimerInfo info)
@@ -250,8 +253,10 @@ namespace WinFormsTimer
             WinFormsTimerInfo.stop = DateTime.Now;
             WinFormsTimerInfo.stopTicks = DateTime.Now.Ticks;
             WinFormsTimerInfo.difference = stopwatchWinFormsTimer.ElapsedTicks;
-            Logging(WinFormsTimerInfo);
             f3 = true;
+            Console.WriteLine(f3);
+            Logging(WinFormsTimerInfo);
+            
         }
     }
 
