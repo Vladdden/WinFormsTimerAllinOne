@@ -26,9 +26,9 @@ namespace WinFormsTimer
         private System.Windows.Forms.Timer TimerWF = new System.Windows.Forms.Timer();
         public TimerInfo WinFormsTimerInfo = new TimerInfo("System_Windows_Forms_Timer");
         Stopwatch stopwatchWinFormsTimer = new Stopwatch();  // Запускаем внутренний таймер объекта Stopwatch
-        //static string writePath = "/home/vladdden/RiderProjects/ConsoleApp1/ConsoleApp1/log.txt";
-        public static string writePath = @"C:\Users\Владислав\Desktop\log\log.txt";
-        
+        //static string fileName = "/home/vladdden/RiderProjects/ConsoleApp1/ConsoleApp1/log.txt";
+        public static string fileName = @"C:\Users\Владислав\Desktop\log\log.txt";
+
 
         public Form1()
         {
@@ -39,8 +39,15 @@ namespace WinFormsTimer
 
         public void button_Click(object sender, EventArgs e)
         {
+
+            using (StreamWriter sw = new StreamWriter(fileName, true, System.Text.Encoding.Default))
+            {
+                sw.WriteLineAsync("Изменения: " + textBoxChange.Text);
+                sw.WriteLineAsync("********************************************************************************************");
+            }
+
             timeInSec = Convert.ToInt32(timeTextBox.Text);
-            writePath = logTextBox.Text;
+            fileName = logTextBox.Text;
             button.Enabled = false;
 
             Thread t1 = new Thread(System_Timers_Timer);
@@ -66,7 +73,7 @@ namespace WinFormsTimer
             
             MessageBox.Show("Таймеры закончили свою работу, нажмите Enter.");
             Console.Read();
-            using (StreamWriter endString = new StreamWriter(writePath, true, System.Text.Encoding.Default))
+            using (StreamWriter endString = new StreamWriter(fileName, true, System.Text.Encoding.Default))
             {
                 endString.WriteLineAsync("--------------------------------------------------------------------------------------------");
             }
@@ -76,7 +83,7 @@ namespace WinFormsTimer
         public async void Logging(TimerInfo info)
         {
             waitHandler.WaitOne();
-            //string writePath = "" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/log.txt";
+            //string fileName = "" + Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/log.txt";
             //@"C:\SomeDir\log.txt";
 
             string t1 = $"{info.start:HH:mm:ss.fff} Таймер {info.name} запустился ({info.startTicks})";
@@ -86,30 +93,30 @@ namespace WinFormsTimer
             string t5 = "--------------------------------------------------------------------------------------------";
             try
             {
-                using (StreamWriter sw = new StreamWriter(writePath, true, System.Text.Encoding.Default))
+                using (StreamWriter sw = new StreamWriter(fileName, true, System.Text.Encoding.Default))
                 {
                     await sw.WriteLineAsync(t1);
                 }
 
-                using (StreamWriter sw2 = new StreamWriter(writePath, true, System.Text.Encoding.Default))
+                using (StreamWriter sw2 = new StreamWriter(fileName, true, System.Text.Encoding.Default))
                 {
                     await sw2.WriteLineAsync(t2);
                 }
 
-                using (StreamWriter sw3 = new StreamWriter(writePath, true, System.Text.Encoding.Default))
+                using (StreamWriter sw3 = new StreamWriter(fileName, true, System.Text.Encoding.Default))
                 {
                     await sw3.WriteLineAsync(t3);
                 }
 
                 if (info.timerException != null)
                 {
-                    using (StreamWriter sw4 = new StreamWriter(writePath, true, System.Text.Encoding.Default))
+                    using (StreamWriter sw4 = new StreamWriter(fileName, true, System.Text.Encoding.Default))
                     {
                         await sw4.WriteLineAsync(t4);
                     }
                 }
 
-                using (StreamWriter sw5 = new StreamWriter(writePath, true, System.Text.Encoding.Default))
+                using (StreamWriter sw5 = new StreamWriter(fileName, true, System.Text.Encoding.Default))
                 {
                     await sw5.WriteLineAsync(t5);
                 }
@@ -257,6 +264,93 @@ namespace WinFormsTimer
             Console.WriteLine(f3);
             Logging(WinFormsTimerInfo);
             
+        }
+
+        private static void GetOs()
+        {
+            File.AppendAllText(fileName, "---------OS%--------\n");
+            if (IsLinux())
+            {
+                var proc = new Process();
+                proc.StartInfo.FileName = "uname";
+
+                proc.StartInfo.Arguments = " -a";
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.Start();
+
+                var output = proc.StandardOutput.ReadToEnd();
+                File.AppendAllText(fileName, output + Environment.NewLine);
+            }
+            else
+            {
+                File.AppendAllText(fileName, Environment.OSVersion + Environment.NewLine);
+            }
+        }
+
+        private static void PrintRuntime()
+        {
+            File.AppendAllText(fileName, "---------Runtime%--------\n");
+
+            if (IsLinux())
+            {
+                var proc = new Process();
+                proc.StartInfo.FileName = "mono";
+
+                proc.StartInfo.Arguments = " -V";
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.Start();
+
+                var str = proc.StandardOutput.ReadLine();
+                var index = str.IndexOf('(');
+                RuntimeVersion = str.Remove(index);
+
+                File.AppendAllText(fileName, RuntimeVersion + "; \n");
+            }
+            else
+            {
+                File.AppendAllText(fileName, "Runtime: " + Environment.Version + "; \n");
+            }
+        }
+
+        private static void PrintProcessorStat()
+        {
+            File.AppendAllText(fileName, "---------CPU%--------\n");
+            File.AppendAllText(fileName, "Count: " + Environment.ProcessorCount + " -\n");
+
+            if (IsLinux())
+            {
+                var proc = new Process();
+                proc.StartInfo.FileName = "lscpu";
+
+                //proc.StartInfo.Arguments = " -V";
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.Start();
+
+                var cpuInfo = proc.StandardOutput.ReadToEnd();
+
+                File.AppendAllText(fileName, cpuInfo + "; \n");
+            }
+            else
+            {
+                var processorQuery = new ObjectQuery("select Name, Caption, Description, L2CacheSize, Manufacturer, Revision from Win32_Processor where ProcessorType = 3");
+                var processorSearcher = new ManagementObjectSearcher(processorQuery);
+                var processorCollection = processorSearcher.Get();
+                foreach (var o in processorCollection)
+                {
+                    var processorInfo = (ManagementObject)o;
+                    File.AppendAllText(fileName,
+                        "Имя: " + processorInfo["Name"] + "; " + "Метка: " + processorInfo["Caption"] + "; " +
+                        "Описание: " + processorInfo["Description"] + "\r\n");
+
+                }
+            }
+
         }
     }
 

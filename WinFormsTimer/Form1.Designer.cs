@@ -36,6 +36,8 @@ namespace WinFormsTimer
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.logTextBox = new System.Windows.Forms.TextBox();
             this.logLabel = new System.Windows.Forms.Label();
+            this.textBoxChange = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -77,7 +79,7 @@ namespace WinFormsTimer
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.Size = new System.Drawing.Size(260, 31);
             this.logTextBox.TabIndex = 4;
-            this.logTextBox.Text = "C:\\Users\\Владислав\\Desktop\\log\\log.txt";
+            this.logTextBox.Text = "log.txt";
             // 
             // logLabel
             // 
@@ -89,11 +91,31 @@ namespace WinFormsTimer
             this.logLabel.TabIndex = 3;
             this.logLabel.Text = "Введите путь к файлу лога";
             // 
+            // textBoxChange
+            // 
+            this.textBoxChange.Location = new System.Drawing.Point(12, 227);
+            this.textBoxChange.Multiline = true;
+            this.textBoxChange.Name = "textBoxChange";
+            this.textBoxChange.Size = new System.Drawing.Size(260, 31);
+            this.textBoxChange.TabIndex = 6;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Location = new System.Drawing.Point(8, 200);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(116, 24);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Изменения:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(282, 205);
+            this.ClientSize = new System.Drawing.Size(282, 270);
+            this.Controls.Add(this.textBoxChange);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.logLabel);
             this.Controls.Add(this.button);
@@ -114,6 +136,8 @@ namespace WinFormsTimer
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.TextBox logTextBox;
         private System.Windows.Forms.Label logLabel;
+        private System.Windows.Forms.TextBox textBoxChange;
+        private System.Windows.Forms.Label label2;
     }
 }
 
