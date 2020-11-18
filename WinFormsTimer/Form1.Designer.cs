@@ -36,7 +36,7 @@ namespace WinFormsTimer
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.logTextBox = new System.Windows.Forms.TextBox();
             this.logLabel = new System.Windows.Forms.Label();
-            this.textBoxChange = new System.Windows.Forms.TextBox();
+            this.changeTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -79,7 +79,7 @@ namespace WinFormsTimer
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.Size = new System.Drawing.Size(260, 31);
             this.logTextBox.TabIndex = 4;
-            this.logTextBox.Text = "log.txt";
+            this.logTextBox.Text = "C:\\Users\\Владислав\\Desktop\\log\\log.txt";
             // 
             // logLabel
             // 
@@ -91,13 +91,13 @@ namespace WinFormsTimer
             this.logLabel.TabIndex = 3;
             this.logLabel.Text = "Введите путь к файлу лога";
             // 
-            // textBoxChange
+            // changeTextBox
             // 
-            this.textBoxChange.Location = new System.Drawing.Point(12, 227);
-            this.textBoxChange.Multiline = true;
-            this.textBoxChange.Name = "textBoxChange";
-            this.textBoxChange.Size = new System.Drawing.Size(260, 31);
-            this.textBoxChange.TabIndex = 6;
+            this.changeTextBox.Location = new System.Drawing.Point(12, 227);
+            this.changeTextBox.Multiline = true;
+            this.changeTextBox.Name = "changeTextBox";
+            this.changeTextBox.Size = new System.Drawing.Size(260, 31);
+            this.changeTextBox.TabIndex = 6;
             // 
             // label2
             // 
@@ -114,7 +114,7 @@ namespace WinFormsTimer
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(282, 270);
-            this.Controls.Add(this.textBoxChange);
+            this.Controls.Add(this.changeTextBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.logLabel);
@@ -136,7 +136,7 @@ namespace WinFormsTimer
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.TextBox logTextBox;
         private System.Windows.Forms.Label logLabel;
-        private System.Windows.Forms.TextBox textBoxChange;
+        private System.Windows.Forms.TextBox changeTextBox;
         private System.Windows.Forms.Label label2;
     }
 }

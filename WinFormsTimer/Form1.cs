@@ -40,20 +40,21 @@ namespace WinFormsTimer
 
         public void button_Click(object sender, EventArgs e)
         {
+            bool cont = true;          
+
+            GetOs();
+            PrintRuntime();
+            PrintProcessorStat();
 
             using (StreamWriter sw = new StreamWriter(fileName, true, System.Text.Encoding.Default))
             {
-                sw.WriteLineAsync("Изменения: " + textBoxChange.Text);
+                sw.WriteLineAsync("Изменения: " + changeTextBox.Text);
                 sw.WriteLineAsync("********************************************************************************************");
             }
 
             timeInSec = Convert.ToInt32(timeTextBox.Text);
             fileName = logTextBox.Text;
             button.Enabled = false;
-
-            GetOs();
-            PrintRuntime();
-            PrintProcessorStat();
 
             Thread t1 = new Thread(System_Timers_Timer);
             t1.Name = "System_Timers_Timer";
@@ -65,24 +66,25 @@ namespace WinFormsTimer
 
 
             System_Windows_Forms_Timer(timeInSec * 1000);
-            /*
-            TimerWF.Interval = timeInSec*1000;
-            TimerWF.Tick += SomeFuncForTimer3;
-            TimerWF.Enabled = true;
-            
-            Thread t3 = new Thread(System_Windows_Forms_Timer);
-            t3.Name = "System_Windows_Forms_Timer";
-            t3.Start(timeInSec * 1000);
-            */
+
             while (!(f1 && f2 && f3)) ;
-            
+
             MessageBox.Show("Таймеры закончили свою работу, нажмите Enter.");
             Console.Read();
             using (StreamWriter endString = new StreamWriter(fileName, true, System.Text.Encoding.Default))
             {
                 endString.WriteLineAsync("--------------------------------------------------------------------------------------------");
             }
-            Application.Exit();
+
+            DialogResult continueShoWbOX = MessageBox.Show("Желаете продолжить работу?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+            if (continueShoWbOX == DialogResult.No) Application.Exit();
+            else if (continueShoWbOX == DialogResult.Yes)
+            {
+                //logTextBox.Clear();
+                timeTextBox.Clear();
+                changeTextBox.Clear();
+                button.Enabled = true;
+            }
         }
 
         public async void Logging(TimerInfo info)
