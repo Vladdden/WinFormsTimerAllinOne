@@ -70,9 +70,7 @@ namespace WinFormsTimer
             tasks2.Start();
             
             Task tasks3 = Task.Factory.StartNew(() => System_Windows_Forms_Timer(timeInSec * 1000, originalContext), // this will use current synchronization context
-            CancellationToken.None,
-            TaskCreationOptions.None,
-            TaskScheduler.FromCurrentSynchronizationContext());
+            CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
             
             Task.WaitAll(tasks1, tasks2, tasks3);
             
