@@ -19,7 +19,7 @@ namespace WinFormsTimer
 
     public partial class Form1 : Form
     {
-        bool f1 = false, f2 = false, f3 = true, loginfoflag = false;
+        bool loginfoflag = false;
         public int timeInSec = 0;
         private System.Timers.Timer T1;
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
@@ -77,8 +77,6 @@ namespace WinFormsTimer
             Task.WaitAll(tasks1, tasks2, tasks3);
             
 
-            while (!(f1 && f2 && f3)) ;
-
             MessageBox.Show("Таймеры закончили свою работу, нажмите Enter.");
             Console.Read();
             using (StreamWriter endString = new StreamWriter(fileName, true, System.Text.Encoding.Default))
@@ -96,7 +94,6 @@ namespace WinFormsTimer
                 resetEvent.Reset();
                 resetEvent2.Reset();
                 TimerWF = new System.Windows.Forms.Timer();
-                f1 = false; f2 = false; f3 = false;
             }
             return;
         }
@@ -184,7 +181,6 @@ namespace WinFormsTimer
                 Console.WriteLine("Первый таймер завершился.");
                 TimerInfo timer = new TimerInfo(Thread.CurrentThread.Name, start, startTicks, stop, stopTicks, difference, timerException);
                 Task.Run(async () => { await Logging(timer); });
-                f1 = true;
             }
             return 0;
         }
@@ -225,7 +221,6 @@ namespace WinFormsTimer
                 Console.WriteLine("Второй таймер завершился.");
                 TimerInfo timer = new TimerInfo(Thread.CurrentThread.Name, start, startTicks, stop, stopTicks, difference, timerException);
                 Task.Run(async () => { await Logging(timer); });
-                f2 = true;
             }
             return 0;
         }
@@ -275,8 +270,6 @@ namespace WinFormsTimer
             WinFormsTimerInfo.stop = DateTime.Now;
             WinFormsTimerInfo.stopTicks = DateTime.Now.Ticks;
             WinFormsTimerInfo.difference = stopwatchWinFormsTimer.ElapsedTicks;
-            f3 = true;
-            Console.WriteLine(f3);
             Task.Run(async () => { await Logging(WinFormsTimerInfo); });
         }
 
