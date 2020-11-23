@@ -21,18 +21,35 @@ namespace WinFormsTimer
     {
         bool loginfoflag = false;
         public int timeInSec = 0;
-        private System.Timers.Timer T1;
+        
         private AutoResetEvent waitHandler = new AutoResetEvent(true);
         public ManualResetEvent resetEvent = new ManualResetEvent(false);
-        public ManualResetEvent resetEvent2 = new ManualResetEvent(false);
+        public ManualResetEvent resetEvenTimer_ThreadingTimer = new ManualResetEvent(false);
         //public ManualResetEvent resetEvent3 = new ManualResetEvent(false);
-        private System.Windows.Forms.Timer TimerWF = new System.Windows.Forms.Timer();
+
+        
         public TimerInfo WinFormsTimerInfo = new TimerInfo("System_Windows_Forms_Timer");
-        Stopwatch stopwatchWinFormsTimer = new Stopwatch();  // Запускаем внутренний таймер объекта Stopwatch
+        private Stopwatch stopwatchWinFormsTimer = new Stopwatch();
+        private System.Windows.Forms.Timer Timer_WinForms;
+        private AutoResetEvent timer3WaitTick = new AutoResetEvent(false);
+
+        private TimerInfo SystemTimersTimerInfo = new TimerInfo("System_Timers_Timer");
+        private Stopwatch stopwatchSystemTimersTimer = new Stopwatch();
+        private System.Timers.Timer Timer_TimersTimer;
+        private AutoResetEvent timer1WaitTick = new AutoResetEvent(false);
+
+        private TimerInfo SystemThreadingTimerInfo = new TimerInfo("System_Threading_Timer");
+        private Stopwatch stopwatchSystemThreadingTimer = new Stopwatch();
+        private System.Threading.Timer Timer_ThreadingTimer;
+        private AutoResetEvent timer2WaitTick = new AutoResetEvent(false);
+
+
         //static string fileName = "/home/vladdden/RiderProjects/ConsoleApp1/ConsoleApp1/log.txt";
         public static string fileName = @"C:\Users\Владислав\Desktop\log\log.txt";
         private static string RuntimeVersion;
         private SynchronizationContext originalContext = SynchronizationContext.Current;
+        
+
 
 
         public Form1()
@@ -71,7 +88,7 @@ namespace WinFormsTimer
             
             Task tasks3 = Task.Factory.StartNew(() => System_Windows_Forms_Timer(timeInSec * 1000, originalContext), // this will use current synchronization context
             CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
-            
+
             Task.WaitAll(tasks1, tasks2, tasks3);
             
 
@@ -90,8 +107,8 @@ namespace WinFormsTimer
                 changeTextBox.Clear();
                 button.Enabled = true;
                 resetEvent.Reset();
-                resetEvent2.Reset();
-                TimerWF = new System.Windows.Forms.Timer();
+                resetEvenTimer_ThreadingTimer.Reset();
+                Timer_WinForms = new System.Windows.Forms.Timer();
             }
             return;
         }
@@ -99,8 +116,8 @@ namespace WinFormsTimer
         public async Task Logging(TimerInfo info)
         {
             waitHandler.WaitOne();
-            string t1 = $"{info.start:HH:mm:ss.fff} Таймер {info.name} запустился ({info.startTicks})";
-            string t2 = $"{info.stop:HH:mm:ss.fff} Таймер {info.name} завершился ({info.stopTicks})";
+            string Timer_TimersTimer = $"{info.start:HH:mm:ss.fff} Таймер {info.name} запустился ({info.startTicks})";
+            string Timer_ThreadingTimer = $"{info.stop:HH:mm:ss.fff} Таймер {info.name} завершился ({info.stopTicks})";
             string t3 = $"Время выполнения таймера {info.name} ({timeInSec} сек.) - {info.stop - info.start}({info.difference})";
             string t4 = $"Во время выполнения таймера {info.name} была обнаружена ошибка - {info.timerException}";
             string t5 = "--------------------------------------------------------------------------------------------";
@@ -108,12 +125,12 @@ namespace WinFormsTimer
             {
                 using (StreamWriter sw = new StreamWriter(fileName, true, System.Text.Encoding.Default))
                 {
-                    await sw.WriteLineAsync(t1).ConfigureAwait(false); ;
+                    await sw.WriteLineAsync(Timer_TimersTimer).ConfigureAwait(false); ;
                 }
 
                 using (StreamWriter sw2 = new StreamWriter(fileName, true, System.Text.Encoding.Default))
                 {
-                    await sw2.WriteLineAsync(t2).ConfigureAwait(false); ;
+                    await sw2.WriteLineAsync(Timer_ThreadingTimer).ConfigureAwait(false); ;
                 }
 
                 using (StreamWriter sw3 = new StreamWriter(fileName, true, System.Text.Encoding.Default))
@@ -143,83 +160,47 @@ namespace WinFormsTimer
         public int System_Timers_Timer(object msecVal)
         {
             Console.WriteLine("Запуск первого таймера - {0:HH:mm:ss.fff}", DateTime.Now);
-            DateTime start = new DateTime();
-            DateTime stop = new DateTime();
-            long startTicks = 0;
-            long stopTicks = 0;
-            long difference = 0;
-            Exception timerException = null;
             try
             {
-                Stopwatch stopwatch = new Stopwatch();  // Запускаем внутренний таймер объекта Stopwatch
-                stopwatch.Start();
-                start = DateTime.Now;
-                startTicks = DateTime.Now.Ticks;
+                stopwatchSystemTimersTimer.Start();
+                SystemTimersTimerInfo.start = DateTime.Now;
+                SystemTimersTimerInfo.startTicks = DateTime.Now.Ticks;
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                T1 = new System.Timers.Timer((int)msecVal);
-                T1.Elapsed += SomeFuncForTimer1;
-                T1.AutoReset = false;
-                T1.Enabled = true;
-                resetEvent.WaitOne(); // This blocks the thread until resetEvent is set
-                //resetEvent.Close();
-                //resetEvent.Dispose();
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                stopwatch.Stop(); // Останавливаем внутренний таймер объекта Stopwatch
-                stop = DateTime.Now;
-                stopTicks = DateTime.Now.Ticks;
-                difference = stopwatch.ElapsedTicks;
+                Timer_TimersTimer = new System.Timers.Timer((int)msecVal);
+                Timer_TimersTimer.Elapsed += SomeFuncForTimer1;
+                Timer_TimersTimer.AutoReset = false;
+                Timer_TimersTimer.Enabled = true;
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////    
             }
             catch (Exception e)
             {
                 Console.WriteLine(Thread.CurrentThread.Name + ":" + e);
-                timerException = e;
+                SystemTimersTimerInfo.timerException = e;
             }
-            finally
-            {
-                Console.WriteLine("Первый таймер завершился.");
-                TimerInfo timer = new TimerInfo(Thread.CurrentThread.Name, start, startTicks, stop, stopTicks, difference, timerException);
-                Task.Run(async () => { await Logging(timer); });
-            }
+            timer1WaitTick.WaitOne();
+            Console.WriteLine("Первый таймер завершился.");
             return 0;
         }
 
         public int System_Threading_Timer(object msecVal)
         {
             Console.WriteLine("Запуск второго таймера -  {0:HH:mm:ss.fff}", DateTime.Now);
-            DateTime start = new DateTime();
-            DateTime stop = new DateTime();
-            long startTicks = 0;
-            long stopTicks = 0;
-            long difference = 0;
-            Exception timerException = null;
             try
             {
-                Stopwatch stopwatch = new Stopwatch();  // Запускаем внутренний таймер объекта Stopwatch
-                stopwatch.Start();
-                start = DateTime.Now;
-                startTicks = DateTime.Now.Ticks;
+                stopwatchSystemThreadingTimer.Start();
+                SystemThreadingTimerInfo.start = DateTime.Now;
+                SystemThreadingTimerInfo.startTicks = DateTime.Now.Ticks;
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                System.Threading.Timer T2 = new System.Threading.Timer(SomeFuncForTimer2, null, (int)msecVal, Timeout.Infinite);
-                resetEvent2.WaitOne(); // This blocks the thread until resetEvent is set
-                //resetEvent2.Close();
-                //resetEvent2.Dispose();
+                Timer_ThreadingTimer = new System.Threading.Timer(SomeFuncForTimer2, null, (int)msecVal, Timeout.Infinite);
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                stopwatch.Stop(); // Останавливаем внутренний таймер объекта Stopwatch
-                stop = DateTime.Now;
-                stopTicks = DateTime.Now.Ticks;
-                difference = stopwatch.ElapsedTicks;
             }
             catch (Exception e)
             {
                 Console.WriteLine(Thread.CurrentThread.Name + ":" + e);
-                timerException = e;
+                SystemThreadingTimerInfo.timerException = e;
             }
-            finally
-            {
-                Console.WriteLine("Второй таймер завершился.");
-                TimerInfo timer = new TimerInfo(Thread.CurrentThread.Name, start, startTicks, stop, stopTicks, difference, timerException);
-                Task.Run(async () => { await Logging(timer); });
-            }
+            timer2WaitTick.WaitOne();
+            Console.WriteLine("Второй таймер завершился.");
             return 0;
         }
         
@@ -228,17 +209,15 @@ namespace WinFormsTimer
             Console.WriteLine("Запуск третьего таймера -  {0:HH:mm:ss.fff}", DateTime.Now);
             try
             {
-                Console.WriteLine(1);
+                Timer_WinForms = new System.Windows.Forms.Timer();
                 stopwatchWinFormsTimer.Start();
                 WinFormsTimerInfo.start = DateTime.Now;
                 WinFormsTimerInfo.startTicks = DateTime.Now.Ticks;
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                Console.WriteLine(2);
-                TimerWF.Interval = (int) msecVal;
-                TimerWF.Tick += SomeFuncForTimer3;
-                TimerWF.Enabled = true;
+                Timer_WinForms.Interval = (int) msecVal;
+                Timer_WinForms.Tick += SomeFuncForTimer3;
+                Timer_WinForms.Enabled = true;
                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-                Console.WriteLine(3);
             }
             catch (Exception e)
             {
@@ -251,24 +230,37 @@ namespace WinFormsTimer
         private void SomeFuncForTimer1(Object source, ElapsedEventArgs e)
         {
             Console.WriteLine("Timer 1 is working!");
-            resetEvent.Set();
+            stopwatchSystemTimersTimer.Stop();
+            SystemTimersTimerInfo.stop = DateTime.Now;
+            SystemTimersTimerInfo.stopTicks = DateTime.Now.Ticks;
+            SystemTimersTimerInfo.difference = stopwatchWinFormsTimer.ElapsedTicks;
+            Task.Run(async () => { await Logging(SystemTimersTimerInfo); });
+            timer1WaitTick.Set();
         }
 
         private void SomeFuncForTimer2(object o)
         {
             Console.WriteLine("Timer 2 is working!");
-            resetEvent2.Set();
+            stopwatchSystemThreadingTimer.Stop();
+            SystemThreadingTimerInfo.stop = DateTime.Now;
+            SystemThreadingTimerInfo.stopTicks = DateTime.Now.Ticks;
+            SystemThreadingTimerInfo.difference = stopwatchWinFormsTimer.ElapsedTicks;
+            Task.Run(async () => { await Logging(SystemThreadingTimerInfo); });
+            timer2WaitTick.Set();
         }
         public void SomeFuncForTimer3(object source, EventArgs e)
         {
             Console.WriteLine($"Timer 3 is working!");
             (source as System.Windows.Forms.Timer).Stop();
             (source as System.Windows.Forms.Timer).Dispose();
-            stopwatchWinFormsTimer.Stop(); // Останавливаем внутренний таймер объекта Stopwatch
+            stopwatchWinFormsTimer.Stop();
             WinFormsTimerInfo.stop = DateTime.Now;
             WinFormsTimerInfo.stopTicks = DateTime.Now.Ticks;
             WinFormsTimerInfo.difference = stopwatchWinFormsTimer.ElapsedTicks;
-            Task.Run(async () => { await Logging(WinFormsTimerInfo); });
+            Task recording = new Task(async () => { await Logging(WinFormsTimerInfo); });
+            recording.Start();
+            recording.Wait();
+            Console.WriteLine("Третий таймер завершился.");
         }
 
         private static void GetOs()
