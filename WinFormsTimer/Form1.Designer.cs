@@ -70,7 +70,7 @@ namespace WinFormsTimer
             // 
             // timer1
             // 
-            this.timer1.Tick += new System.EventHandler(this.SomeFuncForTimer3);
+            //this.timer1.Tick += new System.EventHandler(Timers.SomeFuncForTimer3);
             // 
             // logTextBox
             // 
