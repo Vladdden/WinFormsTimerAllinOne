@@ -21,6 +21,10 @@ namespace WinFormsTimer
         TextBox logTextBox;
         TextBox changeTextBox;
         Button button;
+        object originalSynchronizationContext;
+
+
+        SynchronizationContext thisSynchronizationContext = SynchronizationContext.Current;
 
         bool loginfoflag = false;
         public int timeInSec = 0;
@@ -48,26 +52,30 @@ namespace WinFormsTimer
         private static string RuntimeVersion;
         private SynchronizationContext originalContext = SynchronizationContext.Current;
 
-        public Timers(TextBox TimeTextBox, TextBox LogTextBox, TextBox ChangeTextBox)
+        public Timers(TextBox TimeTextBox, TextBox LogTextBox, TextBox ChangeTextBox, object SyncContext)
         {
             timeTextBox = TimeTextBox;
             logTextBox = LogTextBox;
             changeTextBox = ChangeTextBox;
+            originalSynchronizationContext = SyncContext;
         }
 
-        public Timers(TextBox TimeTextBox, TextBox LogTextBox, TextBox ChangeTextBox, Button Button)
+        public Timers(TextBox TimeTextBox, TextBox LogTextBox, TextBox ChangeTextBox, Button Button, object SyncContext)
         {
             timeTextBox = TimeTextBox;
             logTextBox = LogTextBox;
             changeTextBox = ChangeTextBox;
             button = Button;
+            originalSynchronizationContext = SyncContext;
         }
-
-        public void Start()
+         
+        public async Task Start()
         {
             fileName = logTextBox.Text;
-            button.Enabled = false;
-
+            SynchronizationContext context = originalSynchronizationContext as SynchronizationContext;
+            context.Send(ButtonEnabled, false);
+            SynchronizationContext.SetSynchronizationContext(thisSynchronizationContext);
+            
             if (!loginfoflag)
             {
                 GetOs();
@@ -80,10 +88,19 @@ namespace WinFormsTimer
 
             using (StreamWriter swStart = new StreamWriter(fileName, true, System.Text.Encoding.Default))
             {
-                swStart.WriteLineAsync("Изменения: " + changeTextBox.Text);
-                swStart.WriteLineAsync("********************************************************************************************");
+                await swStart.WriteLineAsync("Изменения: " + changeTextBox.Text);
+                await swStart.WriteLineAsync("********************************************************************************************");
             }
 
+            /*
+            Task[] taskArray =
+            {
+                Task.Factory.StartNew(() => System_Timers_Timer(timeInSec * 1000)),
+                Task.Factory.StartNew(() => System_Threading_Timer(timeInSec * 1000)),
+                Task.Factory.StartNew(() => System_Windows_Forms_Timer(timeInSec * 1000, originalContext), // this will use current synchronization context
+                CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext())
+            };
+            */
             
             //TaskScheduler.Default
             Task tasks1 = new Task(() => System_Timers_Timer(timeInSec * 1000));
@@ -96,16 +113,20 @@ namespace WinFormsTimer
             
             Task tasks3 = Task.Factory.StartNew(() => System_Windows_Forms_Timer(timeInSec * 1000, originalContext), // this will use current synchronization context
             CancellationToken.None, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
-            
+
+
+
             Task.WaitAll(tasks1, tasks2, tasks3);
-            
-            
+            //Task.WhenAll(taskArray).Wait();
+            //Task.WhenAll(new [] {tasks1, tasks2, tasks3}).Wait();
+
+
             MessageBox.Show("Таймеры закончили свою работу, нажмите Enter.");
             Console.Read();
 
             using (StreamWriter endString = new StreamWriter(fileName, true, System.Text.Encoding.Default))
             {
-                endString.WriteLineAsync("--------------------------------------------------------------------------------------------");
+                await endString.WriteLineAsync("--------------------------------------------------------------------------------------------");
             }
 
             DialogResult continueShoWbOX = MessageBox.Show("Желаете продолжить работу?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
@@ -114,11 +135,16 @@ namespace WinFormsTimer
             {
                 timeTextBox.Clear();
                 changeTextBox.Clear();
-                button.Enabled = true;
+                context = originalSynchronizationContext as SynchronizationContext;
+                context.Send(ButtonEnabled, true);
+                SynchronizationContext.SetSynchronizationContext(thisSynchronizationContext);
                 Timer_WinForms = new System.Windows.Forms.Timer();
             }
-
-            return;
+        }
+        private void ButtonEnabled(object val)
+        {
+            if (!button.InvokeRequired) button.Enabled = true;
+            else button.BeginInvoke(new Action<bool>((v) => button.Enabled = v), val);
         }
 
         public async Task Logging(TimerInfo info)
@@ -165,8 +191,9 @@ namespace WinFormsTimer
             }
             waitHandler.Set();
         }
-        public void System_Timers_Timer(object msecVal)
+        public int System_Timers_Timer(object msecVal)
         {
+            Thread.CurrentThread.IsBackground = true;
             Console.WriteLine("Запуск первого таймера - {0:HH:mm:ss.fff}", DateTime.Now);
             try
             {
@@ -187,11 +214,12 @@ namespace WinFormsTimer
             }
             timer1WaitTick.WaitOne();
             Console.WriteLine("Первый таймер завершился.");
-            return;
+            return 0;
         }
 
-        public void System_Threading_Timer(object msecVal)
+        public int System_Threading_Timer(object msecVal)
         {
+            Thread.CurrentThread.IsBackground = true;
             Console.WriteLine("Запуск второго таймера -  {0:HH:mm:ss.fff}", DateTime.Now);
             try
             {
@@ -209,11 +237,12 @@ namespace WinFormsTimer
             }
             timer2WaitTick.WaitOne();
             Console.WriteLine("Второй таймер завершился.");
-            return;
+            return 0;
         }
 
-        private void System_Windows_Forms_Timer(object msecVal, object context)
+        private int System_Windows_Forms_Timer(object msecVal, object context)
         {
+            Thread.CurrentThread.IsBackground = true;
             Console.WriteLine("Запуск третьего таймера -  {0:HH:mm:ss.fff}", DateTime.Now);
             try
             {
@@ -232,7 +261,7 @@ namespace WinFormsTimer
                 Console.WriteLine(Thread.CurrentThread.Name + ":" + e);
                 WinFormsTimerInfo.timerException = e;
             }
-            return;
+            return 0;
         }
 
         private void SomeFuncForTimer1(Object source, ElapsedEventArgs e)
@@ -368,6 +397,7 @@ namespace WinFormsTimer
 
             return false;
         }
+
 
     }
 

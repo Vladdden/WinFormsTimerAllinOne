@@ -19,7 +19,6 @@ namespace WinFormsTimer
 
     public partial class Form1 : Form
     {
-        
         public Form1()
         {
             InitializeComponent();
@@ -28,11 +27,17 @@ namespace WinFormsTimer
 
         public void button_Click(object sender, EventArgs e)
         {
-            Timers timers = new Timers(timeTextBox, logTextBox, changeTextBox, button);
-            timers.Start();
-            return;
+            TimersStart();
+        }
+
+        public async Task TimersStart()
+        {
+            SynchronizationContext uiContext = SynchronizationContext.Current;
+            Timers timers = new Timers(timeTextBox, logTextBox, changeTextBox, button, uiContext);
+            Task tasks1 = new Task(async () => await timers.Start());
+            tasks1.Start();
+            await Task.WhenAny(tasks1);
         }
     }
 }
-
 
