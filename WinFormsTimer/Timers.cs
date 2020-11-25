@@ -133,18 +133,25 @@ namespace WinFormsTimer
             if (continueShoWbOX == DialogResult.No) Application.Exit();
             else if (continueShoWbOX == DialogResult.Yes)
             {
-                timeTextBox.Clear();
-                changeTextBox.Clear();
                 context = originalSynchronizationContext as SynchronizationContext;
-                context.Send(ButtonEnabled, true);
+                context.Post(ButtonEnabled, true);
+                context.Post(TextBoxClear, null);
                 SynchronizationContext.SetSynchronizationContext(thisSynchronizationContext);
                 Timer_WinForms = new System.Windows.Forms.Timer();
             }
         }
         private void ButtonEnabled(object val)
         {
-            if (!button.InvokeRequired) button.Enabled = true;
+            if (!button.InvokeRequired) button.Enabled = (bool) val;
             else button.BeginInvoke(new Action<bool>((v) => button.Enabled = v), val);
+        }
+
+        private void TextBoxClear(object val)
+        {
+            if (!timeTextBox.InvokeRequired) timeTextBox.Clear();
+            else timeTextBox.BeginInvoke(new Action<bool>((v) => timeTextBox.Clear()));
+            if (!changeTextBox.InvokeRequired) changeTextBox.Clear();
+            else changeTextBox.BeginInvoke(new Action<bool>((v) => changeTextBox.Clear()));
         }
 
         public async Task Logging(TimerInfo info)
