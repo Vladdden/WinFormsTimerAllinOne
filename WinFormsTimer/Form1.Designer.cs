@@ -68,10 +68,6 @@ namespace WinFormsTimer
             this.button.UseVisualStyleBackColor = true;
             this.button.Click += new System.EventHandler(this.button_Click);
             // 
-            // timer1
-            // 
-            //this.timer1.Tick += new System.EventHandler(Timers.SomeFuncForTimer3);
-            // 
             // logTextBox
             // 
             this.logTextBox.Location = new System.Drawing.Point(12, 166);
@@ -79,7 +75,7 @@ namespace WinFormsTimer
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.Size = new System.Drawing.Size(260, 31);
             this.logTextBox.TabIndex = 4;
-            this.logTextBox.Text = "C:\\Users\\Владислав\\Desktop\\log\\log.txt";
+            this.logTextBox.Text = "log.txt";
             // 
             // logLabel
             // 
